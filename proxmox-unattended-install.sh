@@ -96,6 +96,7 @@ sudo -u www-data git reset --hard origin/main
 
 chown -R www-data:www-data /var/www/regiedeck/storage /var/www/regiedeck/config /var/www/regiedeck/.git
 chmod -R 775 /var/www/regiedeck/storage /var/www/regiedeck/config
+chown -R www-data:www-data /var/www/regiedeck
 
 systemctl reload apache2
 
