@@ -80,6 +80,11 @@ EOF
 
 mkdir -p storage config
 
+cp -a app/config/* config/
+
+chown -R 33:33 storage config
+chmod -R 775 storage config
+
 docker compose up -d --build
 
 unset GITHUB_TOKEN
