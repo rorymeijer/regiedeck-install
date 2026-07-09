@@ -2,11 +2,9 @@
 set -euo pipefail
 
 # === Regiedeck unattended deploy ===
-
-HOSTNAME="regiedeck"
-CPU="2"
-RAM="2048"
-DISK="20"
+apt update
+apt install -y apache2 git unzip curl \
+php php-cli php-mysql php-mbstring php-json php-curl php-xml libapache2-mod-php
 BRIDGE="vmbr0"
 STORAGE="local-lvm"
 TEMPLATE_STORAGE="local"
@@ -38,9 +36,15 @@ cat > "$POST_INSTALL" <<'POSTEOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
+rm -f /etc/apt/sources.list.d/pve-enterprise.sources
+rm -f /etc/apt/sources.list.d/pve-enterprise.list
+rm -f /etc/apt/sources.list.d/ceph.sources
+rm -f /etc/apt/sources.list.d/ceph.list
+
 apt update
+
 apt install -y apache2 git unzip curl \
-php php-cli php-mysql php-mbstring php-json php-curl php-xml libapache2-mod-php
+php php-cli php-mysql php-mbstring php-curl php-xml libapache2-mod-php
 
 a2enmod rewrite
 
