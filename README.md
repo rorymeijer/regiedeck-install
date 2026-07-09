@@ -47,7 +47,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/rorymeijer/regiedeck-ins
 Voer op de Docker-host uit:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/rorymeijer/regiedeck-install/main/install-regiedeck-docker.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/rorymeijer/regiedeck-install/main/docker-unattended-install.sh)"
 ```
 
 ---
