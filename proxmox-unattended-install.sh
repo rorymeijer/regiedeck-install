@@ -43,17 +43,27 @@ rm -f /etc/apt/sources.list.d/ceph.list
 
 apt update
 
-apt install -y apache2 git unzip curl \\
+apt install -y apache2 git unzip curl sudo \\
 php php-cli php-mysql php-mbstring php-curl php-xml libapache2-mod-php
 
 a2enmod rewrite
+
+echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf
+a2enconf servername
 
 rm -rf /var/www/regiedeck
 
 git clone -b "$BRANCH" "https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$REPO.git" /var/www/regiedeck
 
-chown -R www-data:www-data /var/www/regiedeck/storage /var/www/regiedeck/config
+mkdir -p /var/www/regiedeck/storage/logs /var/www/regiedeck/config
+
+# Rechten voor installer, storage én in-app updater
+chown -R www-data:www-data /var/www/regiedeck/storage /var/www/regiedeck/config /var/www/regiedeck/.git
 chmod -R 775 /var/www/regiedeck/storage /var/www/regiedeck/config
+
+# Git safe-directory voor root én www-data
+git config --global --add safe.directory /var/www/regiedeck || true
+sudo -u www-data git config --global --add safe.directory /var/www/regiedeck || true
 
 cat > /etc/apache2/sites-available/regiedeck.conf <<'EOF'
 <VirtualHost *:80>
@@ -75,6 +85,25 @@ a2ensite regiedeck.conf
 systemctl enable apache2
 systemctl restart apache2
 
+cat > /usr/local/bin/update-regiedeck <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd /var/www/regiedeck
+
+sudo -u www-data git fetch origin
+sudo -u www-data git reset --hard origin/main
+
+chown -R www-data:www-data /var/www/regiedeck/storage /var/www/regiedeck/config /var/www/regiedeck/.git
+chmod -R 775 /var/www/regiedeck/storage /var/www/regiedeck/config
+
+systemctl reload apache2
+
+echo "Regiedeck is bijgewerkt."
+EOF
+
+chmod +x /usr/local/bin/update-regiedeck
+
 cat > /root/regiedeck-db-info.txt <<EOF
 MySQL host: $MYSQL_HOST
 Database: $MYSQL_DATABASE
@@ -86,6 +115,9 @@ http://<container-ip>/install/
 
 Na installatie uitvoeren:
 rm -rf /var/www/regiedeck/public/install
+
+Handmatig updaten:
+update-regiedeck
 EOF
 
 rm -f /root/regiedeck-post-install.sh
@@ -117,7 +149,6 @@ var_template_storage="$TEMPLATE_STORAGE" \
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/debian.sh)"
 
 AFTER_IDS="$(pct list | awk 'NR>1 {print $1}')"
-
 CTID="$(comm -13 <(echo "$BEFORE_IDS" | sort) <(echo "$AFTER_IDS" | sort) | tail -n 1)"
 
 if [[ -z "$CTID" ]]; then
@@ -143,3 +174,6 @@ echo "pct exec $CTID -- hostname -I"
 echo
 echo "Open daarna:"
 echo "http://<container-ip>/install/"
+echo
+echo "Handmatig updaten:"
+echo "pct exec $CTID -- update-regiedeck"
