@@ -5,7 +5,7 @@ APP_NAME="regiedeck"
 APP_DIR="/srv/docker/regiedeck"
 REPO="rorymeijer/Regiedeck"
 BRANCH="main"
-PORT="8080"
+PORT="8181"
 
 echo "GitHub authenticatie voor private repo:"
 read -r -p "GitHub username: " GITHUB_USER
