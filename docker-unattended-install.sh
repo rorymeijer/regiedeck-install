@@ -54,7 +54,7 @@ COPY app/ /var/www/html/
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/config \
     && chmod -R 775 /var/www/html/storage /var/www/html/config
-
+RUN chown -R www-data:www-data /var/www/html
 RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
 
 WORKDIR /var/www/html
