@@ -1,31 +1,58 @@
-# Regiedeck Proxmox Installer
+# Regiedeck Installer
 
-Automatische installatie van **Regiedeck** in een **Proxmox LXC-container**.
+Automatische installatie van **Regiedeck** op zowel **Proxmox LXC** als **Docker**.
 
-Dit script maakt een nieuwe Debian 12-container aan, installeert alle benodigde software en downloadt de laatste versie van Regiedeck vanuit GitHub.
+De installatiecripts downloaden automatisch de laatste versie van Regiedeck vanuit GitHub en begeleiden je bij het configureren van een externe MySQL/MariaDB-database.
 
-> **Let op:** De Regiedeck-repository is momenteel privé. Tijdens de installatie wordt daarom gevraagd om een GitHub-gebruikersnaam en een Personal Access Token (PAT) met leesrechten op de repository.
+> **Let op:** De Regiedeck-repository is momenteel privé. Tijdens de installatie wordt gevraagd om een GitHub-gebruikersnaam en een Personal Access Token (PAT) met leesrechten op de repository.
 
 ---
 
-## Vereisten
+# Vereisten
 
-* Proxmox VE 8 of hoger
+## Algemeen
+
 * Internetverbinding
 * Een bestaande externe MySQL/MariaDB-server
 * Een GitHub Personal Access Token met minimaal **Contents: Read** rechten
 
+## Proxmox
+
+* Proxmox VE 8 of hoger
+
+## Docker
+
+* Linux-server (Debian, Ubuntu of vergelijkbaar)
+* Docker Engine
+* Docker Compose
+
+> Wanneer Docker nog niet is geïnstalleerd kan het Docker-installatiescript dit automatisch installeren.
+
 ---
 
-## Installeren
+# Installeren
 
-Voer op de Proxmox-host uit:
+## Proxmox LXC
+
+Voer op de **Proxmox-host** uit:
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/rorymeijer/regiedeck-install/main/proxmox-unattended-install.sh)"
 ```
 
-Tijdens de installatie wordt gevraagd om:
+---
+
+## Docker
+
+Voer op de Docker-host uit:
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/rorymeijer/regiedeck-install/main/install-regiedeck-docker.sh)"
+```
+
+---
+
+Tijdens beide installaties wordt gevraagd om:
 
 * GitHub gebruikersnaam
 * GitHub Personal Access Token
@@ -37,34 +64,64 @@ Tijdens de installatie wordt gevraagd om:
 
 ---
 
-## Wat installeert het script?
+# Wat installeert het script?
+
+## Proxmox
 
 Het script:
 
-* maakt een nieuwe Debian 12 LXC-container aan;
+* maakt automatisch een nieuwe Debian LXC-container aan;
 * installeert Apache;
-* installeert PHP 8.x en alle benodigde extensies;
-* activeert Apache Rewrite;
-* downloadt de laatste versie van Regiedeck vanaf de `main` branch;
-* configureert de Apache Virtual Host;
+* installeert PHP en alle benodigde extensies;
+* downloadt Regiedeck vanuit GitHub;
+* configureert Apache;
 * stelt de juiste bestandsrechten in;
-* laat de webinstaller gereedstaan.
-
-De database wordt **niet** lokaal geïnstalleerd. Er wordt gebruikgemaakt van een bestaande externe MySQL/MariaDB-server.
+* start Apache;
+* maakt Regiedeck gereed voor de webinstaller.
 
 ---
 
-## Na de installatie
+## Docker
+
+Het script:
+
+* installeert Docker (indien nodig);
+* downloadt Regiedeck vanuit GitHub;
+* bouwt automatisch de Docker-image;
+* maakt een Docker Compose-configuratie aan;
+* start de container;
+* koppelt configuratie- en opslagmappen als volumes;
+* maakt Regiedeck gereed voor de webinstaller.
+
+---
+
+# Database
+
+Regiedeck installeert **geen lokale database**.
+
+Er wordt altijd gebruikgemaakt van een bestaande externe MySQL- of MariaDB-server.
+
+---
+
+# Na de installatie
 
 Open in de browser:
+
+## Proxmox
 
 ```text
 http://<container-ip>/install/
 ```
 
+## Docker
+
+```text
+http://<server-ip>:8080/install/
+```
+
 Volg vervolgens de webinstaller en vul de gegevens van de externe database in.
 
-Na een succesvolle installatie wordt aangeraden de installer te verwijderen:
+Na een succesvolle installatie wordt aanbevolen de installer te verwijderen:
 
 ```bash
 rm -rf /var/www/regiedeck/public/install
@@ -72,15 +129,42 @@ rm -rf /var/www/regiedeck/public/install
 
 ---
 
-## GitHub Token
+# Updaten
+
+## Proxmox
+
+Updates kunnen handmatig worden uitgevoerd via Git:
+
+```bash
+cd /var/www/regiedeck
+git fetch origin
+git reset --hard origin/main
+systemctl reload apache2
+```
+
+## Docker
+
+Wanneer de Regiedeck-map als volume is gekoppeld, kunnen updates eveneens vanuit de applicatie of handmatig worden uitgevoerd:
+
+```bash
+cd /var/www/html
+git fetch origin
+git reset --hard origin/main
+```
+
+Na een update hoeft de container normaal gesproken niet opnieuw gebouwd te worden zolang alleen de PHP-code is gewijzigd.
+
+---
+
+# GitHub Token
 
 Maak een Personal Access Token aan via:
 
 https://github.com/settings/personal-access-tokens
 
-Benodigde rechten:
+Minimale rechten:
 
-* Repository access: **Only select repositories**
+* Repository access → **Only select repositories**
 * Selecteer **Regiedeck**
 * Permissions:
 
@@ -88,36 +172,39 @@ Benodigde rechten:
 
 ---
 
-## Ondersteunde configuratie
+# Ondersteunde configuraties
 
-| Onderdeel   | Waarde                |
-| ----------- | --------------------- |
-| OS          | Debian 12             |
-| Webserver   | Apache 2.4            |
-| PHP         | 8.1+                  |
-| Database    | Externe MySQL/MariaDB |
-| Installatie | Proxmox LXC           |
+| Onderdeel                 | Proxmox | Docker |
+| ------------------------- | :-----: | :----: |
+| Debian 12                 |    ✅    |    ✅   |
+| Apache 2.4                |    ✅    |    ✅   |
+| PHP 8.3+                  |    ✅    |    ✅   |
+| Externe MySQL/MariaDB     |    ✅    |    ✅   |
+| Webinstaller              |    ✅    |    ✅   |
+| GitHub Private Repository |    ✅    |    ✅   |
 
 ---
 
-## Roadmap
+# Roadmap
 
 Geplande uitbreidingen:
 
-* Automatische updates vanuit GitHub
+* In-app updater
+* Automatische GitHub-updates
+* Docker image via GitHub Container Registry (GHCR)
 * SSL-configuratie via Nginx Proxy Manager
-* Ondersteuning voor Docker-installaties
 * Ondersteuning voor meerdere deployment-profielen
 * Back-up- en restorefunctionaliteit
+* Eén universeel installatiescript dat automatisch Proxmox of Docker detecteert
 
 ---
 
-## Licentie
+# Licentie
 
 Zie de licentie in de hoofdrepository van Regiedeck.
 
 ---
 
-## Hoofdrepository
+# Hoofdrepository
 
 https://github.com/rorymeijer/Regiedeck
