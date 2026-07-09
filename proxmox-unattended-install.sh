@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+HOSTNAME="regiedeck"
+CPU="2"
+RAM="2048"
+DISK="20"
+BRIDGE="vmbr0"
+STORAGE="local-lvm"
+TEMPLATE_STORAGE="local"
+
 # === Regiedeck unattended deploy ===
 apt update
 apt install -y apache2 git unzip curl \
