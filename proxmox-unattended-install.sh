@@ -9,17 +9,8 @@ BRIDGE="vmbr0"
 STORAGE="local-lvm"
 TEMPLATE_STORAGE="local"
 
-# === Regiedeck unattended deploy ===
-apt update
-apt install -y apache2 git unzip curl \
-php php-cli php-mysql php-mbstring php-json php-curl php-xml libapache2-mod-php
-BRIDGE="vmbr0"
-STORAGE="local-lvm"
-TEMPLATE_STORAGE="local"
-
 REPO="rorymeijer/Regiedeck"
 BRANCH="main"
-APP_DIR="/var/www/regiedeck"
 
 echo "GitHub authenticatie voor private repo:"
 read -r -p "GitHub username: " GITHUB_USER
@@ -38,9 +29,10 @@ MYSQL_USER="${MYSQL_USER:-regiedeck}"
 read -r -s -p "MySQL password: " MYSQL_PASSWORD
 echo
 
-POST_INSTALL="/root/regiedeck-post-install.sh"
+POST_INSTALL_HOST="/root/regiedeck-post-install.sh"
+POST_INSTALL_CT="/root/regiedeck-post-install.sh"
 
-cat > "$POST_INSTALL" <<'POSTEOF'
+cat > "$POST_INSTALL_HOST" <<POSTEOF
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -51,14 +43,14 @@ rm -f /etc/apt/sources.list.d/ceph.list
 
 apt update
 
-apt install -y apache2 git unzip curl \
+apt install -y apache2 git unzip curl \\
 php php-cli php-mysql php-mbstring php-curl php-xml libapache2-mod-php
 
 a2enmod rewrite
 
 rm -rf /var/www/regiedeck
 
-git clone -b "__BRANCH__" "https://__GITHUB_USER__:__GITHUB_TOKEN__@github.com/__REPO__.git" /var/www/regiedeck
+git clone -b "$BRANCH" "https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$REPO.git" /var/www/regiedeck
 
 chown -R www-data:www-data /var/www/regiedeck/storage /var/www/regiedeck/config
 chmod -R 775 /var/www/regiedeck/storage /var/www/regiedeck/config
@@ -73,20 +65,21 @@ cat > /etc/apache2/sites-available/regiedeck.conf <<'EOF'
         Require all granted
     </Directory>
 
-    ErrorLog ${APACHE_LOG_DIR}/regiedeck_error.log
-    CustomLog ${APACHE_LOG_DIR}/regiedeck_access.log combined
+    ErrorLog \${APACHE_LOG_DIR}/regiedeck_error.log
+    CustomLog \${APACHE_LOG_DIR}/regiedeck_access.log combined
 </VirtualHost>
 EOF
 
 a2dissite 000-default.conf || true
 a2ensite regiedeck.conf
-systemctl reload apache2
+systemctl enable apache2
+systemctl restart apache2
 
 cat > /root/regiedeck-db-info.txt <<EOF
-MySQL host: __MYSQL_HOST__
-Database: __MYSQL_DATABASE__
-User: __MYSQL_USER__
-Password: __MYSQL_PASSWORD__
+MySQL host: $MYSQL_HOST
+Database: $MYSQL_DATABASE
+User: $MYSQL_USER
+Password: $MYSQL_PASSWORD
 
 Open:
 http://<container-ip>/install/
@@ -95,22 +88,15 @@ Na installatie uitvoeren:
 rm -rf /var/www/regiedeck/public/install
 EOF
 
-unset GITHUB_TOKEN
+rm -f /root/regiedeck-post-install.sh
 history -c || true
 POSTEOF
 
-sed -i \
-  -e "s#__BRANCH__#${BRANCH}#g" \
-  -e "s#__GITHUB_USER__#${GITHUB_USER}#g" \
-  -e "s#__GITHUB_TOKEN__#${GITHUB_TOKEN}#g" \
-  -e "s#__REPO__#${REPO}#g" \
-  -e "s#__MYSQL_HOST__#${MYSQL_HOST}#g" \
-  -e "s#__MYSQL_DATABASE__#${MYSQL_DATABASE}#g" \
-  -e "s#__MYSQL_USER__#${MYSQL_USER}#g" \
-  -e "s#__MYSQL_PASSWORD__#${MYSQL_PASSWORD}#g" \
-  "$POST_INSTALL"
+chmod +x "$POST_INSTALL_HOST"
 
-chmod +x "$POST_INSTALL"
+echo "Container aanmaken..."
+
+BEFORE_IDS="$(pct list | awk 'NR>1 {print $1}')"
 
 var_unprivileged=1 \
 var_cpu="$CPU" \
@@ -128,15 +114,32 @@ var_keyctl=1 \
 var_tags=regiedeck,web,automated \
 var_container_storage="$STORAGE" \
 var_template_storage="$TEMPLATE_STORAGE" \
-var_post_install="$POST_INSTALL" \
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/debian.sh)"
 
-rm -f "$POST_INSTALL"
+AFTER_IDS="$(pct list | awk 'NR>1 {print $1}')"
+
+CTID="$(comm -13 <(echo "$BEFORE_IDS" | sort) <(echo "$AFTER_IDS" | sort) | tail -n 1)"
+
+if [[ -z "$CTID" ]]; then
+  echo "Kon CTID niet automatisch bepalen."
+  echo "Gebruik: pct list"
+  exit 1
+fi
+
+echo "Nieuwe container gevonden: CTID $CTID"
+
+echo "Post-install script naar container kopiëren..."
+pct push "$CTID" "$POST_INSTALL_HOST" "$POST_INSTALL_CT" --perms 700
+
+echo "Post-install uitvoeren in container..."
+pct exec "$CTID" -- bash "$POST_INSTALL_CT"
+
+rm -f "$POST_INSTALL_HOST"
 
 echo
-echo "Regiedeck container is aangemaakt."
-echo "Zoek het IP met:"
-echo "pct list"
+echo "Regiedeck is geïnstalleerd in container $CTID."
+echo "IP-adres zoeken:"
+echo "pct exec $CTID -- hostname -I"
 echo
 echo "Open daarna:"
 echo "http://<container-ip>/install/"
