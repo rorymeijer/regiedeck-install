@@ -176,7 +176,7 @@ echo "=========================================================="
 echo
 echo " Wat moet je nu doen?"
 echo
-echo " 1. Open in je browser de installer:"
+echo " Open in je browser de installer:"
 echo
 echo "      http://${CT_IP}/install/"
 echo
