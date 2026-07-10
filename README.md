@@ -136,12 +136,6 @@ http://<server-ip>:8080/install/
 
 Volg vervolgens de webinstaller en vul de gegevens van de externe database in.
 
-Na een succesvolle installatie wordt aanbevolen de installer te verwijderen:
-
-```bash
-rm -rf /var/www/regiedeck/public/install
-```
-
 ---
 
 # Updaten

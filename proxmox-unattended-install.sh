@@ -176,16 +176,12 @@ echo "=========================================================="
 echo
 echo " Wat moet je nu doen?"
 echo
-echo " 1. Open in je browser de installer:"
+echo " Open in je browser de installer:"
 echo
 echo "      http://${CT_IP}/install/"
 echo
 echo "    Hier vul je de MySQL-gegevens (host, database,"
 echo "    gebruiker, wachtwoord) in en rond je de installatie af."
-echo
-echo " 2. Verwijder daarna de installer om alles veilig te maken:"
-echo
-echo "      pct exec $CTID -- rm -rf /var/www/regiedeck/public/install"
 echo
 echo " Handmatig updaten kan later met:"
 echo
