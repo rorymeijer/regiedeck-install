@@ -1,0 +1,363 @@
+<title>Regiedeck — Promo</title>
+<style>
+  :root{
+    --navy:#16255c; --navy2:#0b1428; --blue:#1d4ed8; --blue2:#2563eb;
+    --sky:#0ea5e9; --violet:#6366f1; --ink:#0f172a; --muted:#64748b;
+    --line:#e2e8f0; --panel:#ffffff; --bg:#f1f5f9;
+    --green:#22c55e; --amber:#f59e0b; --red:#ef4444;
+    --glass:rgba(255,255,255,.06); --glassline:rgba(255,255,255,.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#05080f;overflow:hidden}
+  .stage{
+    position:relative;width:1920px;height:1080px;overflow:hidden;
+    font-family:-apple-system,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:
+      radial-gradient(1200px 800px at 78% -10%, rgba(14,165,233,.22), transparent 60%),
+      radial-gradient(1000px 900px at 8% 110%, rgba(99,102,241,.20), transparent 55%),
+      linear-gradient(160deg,#0b1a3f 0%,#0a1330 45%,#070d1f 100%);
+    color:#eaf0fb;
+  }
+  /* animated aurora / grid backdrop */
+  .grid{position:absolute;inset:-2px;background-image:
+    linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+    background-size:64px 64px;mask-image:radial-gradient(1200px 700px at 50% 40%,#000 30%,transparent 75%);
+    opacity:.5;animation:drift 24s linear infinite}
+  @keyframes drift{to{background-position:64px 64px}}
+  .orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;mix-blend-mode:screen}
+  .orb.a{width:520px;height:520px;background:radial-gradient(circle,#2563eb,transparent 65%);top:-140px;right:-80px;animation:float1 18s ease-in-out infinite}
+  .orb.b{width:460px;height:460px;background:radial-gradient(circle,#0ea5e9,transparent 65%);bottom:-160px;left:-60px;animation:float2 22s ease-in-out infinite}
+  @keyframes float1{50%{transform:translate(-60px,80px) scale(1.1)}}
+  @keyframes float2{50%{transform:translate(70px,-60px) scale(1.08)}}
+
+  .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    opacity:0;transition:opacity .7s ease;pointer-events:none;padding:120px}
+  .scene.show{opacity:1}
+  .up{opacity:0;transform:translateY(34px);transition:all .9s cubic-bezier(.2,.7,.2,1)}
+  .scene.show .up{opacity:1;transform:none}
+  .d1{transition-delay:.12s}.d2{transition-delay:.26s}.d3{transition-delay:.40s}
+  .d4{transition-delay:.54s}.d5{transition-delay:.68s}.d6{transition-delay:.82s}
+  .d7{transition-delay:.96s}.d8{transition-delay:1.10s}
+
+  /* logo */
+  .logo{display:flex;align-items:center;gap:26px}
+  .mark{width:120px;height:120px;border-radius:28px;display:grid;place-items:center;
+    font-weight:800;font-size:52px;letter-spacing:1px;color:#fff;
+    background:linear-gradient(150deg,#3b82f6,#0ea5e9);
+    box-shadow:0 24px 60px rgba(37,99,235,.55),inset 0 2px 0 rgba(255,255,255,.35)}
+  .brand{font-size:82px;font-weight:800;letter-spacing:-1.5px;
+    background:linear-gradient(90deg,#fff,#cfe3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .kicker{font-size:15px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:#7fa8 e0}
+  .kicker{color:#8fb4e6}
+  .lead{font-size:40px;font-weight:600;color:#c7d6f2;max-width:1180px;text-align:center;line-height:1.35}
+  .lead b{color:#fff}
+  .big{font-size:78px;font-weight:800;letter-spacing:-2px;text-align:center;line-height:1.05}
+  .big .g{background:linear-gradient(90deg,#38bdf8,#818cf8);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{font-size:26px;color:#93a9cf;text-align:center;margin-top:22px;font-weight:500}
+  .pillrow{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+  .pill{padding:12px 22px;border-radius:999px;font-size:20px;font-weight:600;color:#dbe6ff;
+    background:var(--glass);border:1px solid var(--glassline);backdrop-filter:blur(6px)}
+
+  /* chaos -> order */
+  .chaos{position:relative;width:1200px;height:560px}
+  .note{position:absolute;padding:16px 20px;border-radius:12px;font-size:20px;font-weight:600;
+    color:#0f172a;box-shadow:0 16px 40px rgba(0,0,0,.35);transition:all 1s cubic-bezier(.2,.7,.2,1)}
+  .note.s{background:#fde68a}.note.m{background:#bfdbfe}.note.p{background:#fbcfe8}.note.x{background:#bbf7d0}
+  .scene.show .note{opacity:1}
+  .converge .note{left:50% !important;top:50% !important;transform:translate(-50%,-50%) scale(.2) !important;opacity:0 !important}
+
+  /* dashboard mock */
+  .screen{width:1520px;border-radius:20px;overflow:hidden;background:var(--panel);color:var(--ink);
+    box-shadow:0 50px 120px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.08);
+    transform:perspective(1800px) rotateX(6deg);}
+  .topbar{height:70px;display:flex;align-items:center;gap:16px;padding:0 26px;border-bottom:1px solid var(--line);background:#fff}
+  .tb-title{font-weight:700;font-size:20px;color:var(--ink)}
+  .tb-search{margin-left:auto;width:420px;height:42px;border-radius:10px;background:#f1f5f9;border:1px solid var(--line);display:flex;align-items:center;padding:0 16px;color:#94a3b8;font-size:16px}
+  .tb-role{height:42px;padding:0 18px;border-radius:10px;background:#eef4ff;border:1px solid #dbe3ff;color:#1d4ed8;font-weight:700;font-size:15px;display:flex;align-items:center}
+  .tb-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(150deg,#3b82f6,#0ea5e9);color:#fff;font-weight:700;display:grid;place-items:center;font-size:14px}
+  .board{display:flex}
+  .side{width:250px;background:linear-gradient(180deg,#17265d,#101d47);padding:22px 16px;color:#c9d6f5;min-height:640px}
+  .side .lg{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+  .side .lg .m{width:40px;height:40px;border-radius:11px;background:linear-gradient(150deg,#3b82f6,#0ea5e9);display:grid;place-items:center;font-weight:800;color:#fff;font-size:16px}
+  .side .lg b{font-size:17px;color:#fff}.side .lg span{font-size:12px;color:#9fb2e6}
+  .side .cap{font-size:11px;letter-spacing:2px;color:#7f93cf;margin:18px 8px 8px;font-weight:700}
+  .side .it{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;font-size:15px;color:#c9d6f5}
+  .side .it.on{background:rgba(255,255,255,.10);color:#fff;font-weight:600}
+  .side .it i{width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,.35);display:inline-block}
+  .side .it.on i{background:#7dd3fc}
+  .main{flex:1;padding:26px 30px;background:var(--bg)}
+  .h1{font-size:26px;font-weight:800;color:var(--ink)}
+  .h1s{font-size:14px;color:var(--muted);margin:4px 0 20px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:0 6px 16px rgba(15,23,42,.04)}
+  .kpi .lb{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:8px;font-weight:600}
+  .kpi .lb .dot{width:9px;height:9px;border-radius:50%}
+  .kpi .n{font-size:42px;font-weight:800;color:var(--ink);margin-top:6px;line-height:1}
+  .kpi .f{font-size:12px;color:var(--muted);margin-top:8px}
+  .panels{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-top:16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .card h3{font-size:16px;color:var(--ink);margin-bottom:14px}
+  .row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:14px}
+  .row:last-child{border:0}
+  .row .code{color:var(--muted);font-family:ui-monospace,monospace;font-size:12px;width:120px}
+  .row .nm{color:#1d4ed8;font-weight:700;flex:1}
+  .bar{height:8px;border-radius:6px;background:#e5e9f2;width:120px;overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:6px;width:0;transition:width 1.2s ease .3s}
+  .tag{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+  .tag.g{background:#dcfce7;color:#15803d}.tag.a{background:#fef3c7;color:#b45309}.tag.r{background:#fee2e2;color:#b91c1c}
+  .rag{height:12px;border-radius:8px;display:flex;overflow:hidden;margin-top:6px}
+  .rag>i{height:100%}
+  .stat{display:flex;align-items:center;justify-content:space-between;font-size:14px;color:var(--ink);padding:7px 0}
+  .stat .sb{flex:1;height:7px;border-radius:5px;background:#eef2f7;margin:0 14px;overflow:hidden}
+  .stat .sb>i{display:block;height:100%;border-radius:5px;width:0;transition:width 1s ease .3s}
+
+  /* feature grid */
+  .fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;width:1400px}
+  .feat{background:var(--glass);border:1px solid var(--glassline);border-radius:18px;padding:28px 24px;backdrop-filter:blur(8px)}
+  .feat .ic{width:58px;height:58px;border-radius:15px;display:grid;place-items:center;margin-bottom:16px;
+    background:linear-gradient(150deg,rgba(59,130,246,.9),rgba(14,165,233,.9));box-shadow:0 12px 30px rgba(37,99,235,.35)}
+  .feat .ic svg{width:30px;height:30px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .feat b{font-size:21px;color:#fff;display:block;margin-bottom:6px}
+  .feat p{font-size:15px;color:#a9bde0;line-height:1.5}
+
+  /* security */
+  .shield{width:210px;height:210px;border-radius:32px;display:grid;place-items:center;
+    background:linear-gradient(150deg,#3b82f6,#0ea5e9);box-shadow:0 30px 80px rgba(37,99,235,.5);margin-bottom:8px}
+  .shield svg{width:110px;height:110px;stroke:#fff;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .secgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;width:1150px;margin-top:40px}
+  .sec{display:flex;align-items:center;gap:16px;background:var(--glass);border:1px solid var(--glassline);border-radius:14px;padding:20px 22px}
+  .sec .k{width:44px;height:44px;border-radius:12px;background:rgba(14,165,233,.18);display:grid;place-items:center;flex:none}
+  .sec .k svg{width:24px;height:24px;stroke:#7dd3fc;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .sec b{font-size:19px;color:#fff}.sec span{font-size:14px;color:#9fb2e6}
+
+  /* roles */
+  .roles{display:flex;gap:20px;width:1500px;justify-content:center}
+  .role{flex:1;background:var(--glass);border:1px solid var(--glassline);border-radius:18px;padding:30px 22px;text-align:center}
+  .role .rn{width:64px;height:64px;border-radius:50%;margin:0 auto 16px;display:grid;place-items:center;font-weight:800;font-size:22px;color:#fff}
+  .role b{font-size:20px;color:#fff;display:block;margin-bottom:8px}
+  .role p{font-size:14px;color:#a9bde0;line-height:1.45}
+
+  /* progress line */
+  .prog{position:absolute;left:0;bottom:0;height:5px;width:0;background:linear-gradient(90deg,#38bdf8,#818cf8);box-shadow:0 0 20px rgba(56,189,248,.6);z-index:50}
+  .vig{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 260px rgba(3,7,18,.85)}
+  .credit{position:absolute;left:60px;bottom:38px;font-size:16px;color:#6f86b3;letter-spacing:.5px;z-index:20;opacity:0;transition:opacity .6s}
+  .credit.show{opacity:1}
+</style>
+
+<div class="stage" id="stage">
+  <div class="grid"></div>
+  <div class="orb a"></div><div class="orb b"></div>
+
+  <!-- SCENE 1 — intro -->
+  <div class="scene" id="s1">
+    <div style="text-align:center">
+      <div class="logo up d1" style="justify-content:center">
+        <div class="mark">IV</div>
+        <div style="text-align:left">
+          <div class="brand">Regiedeck</div>
+        </div>
+      </div>
+      <div class="lead up d3" style="margin-top:40px">Eén dashboard voor de volledige <b>regie</b> op je IV-portfolio.</div>
+      <div class="pillrow up d5" style="margin-top:34px">
+        <div class="pill">Projecten</div><div class="pill">Portfolio</div><div class="pill">Risico's</div>
+        <div class="pill">Besluiten</div><div class="pill">Budgetten</div><div class="pill">Governance</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 2 — chaos to order -->
+  <div class="scene" id="s2">
+    <div style="text-align:center">
+      <div class="big up d1">Spreadsheets. Mailtjes. Presentaties.<br><span class="g">Verspreid over overal.</span></div>
+      <div class="chaos" id="chaos" style="margin:36px auto 0">
+        <div class="note s" style="left:60px;top:40px;transform:rotate(-8deg)">risico's.xlsx</div>
+        <div class="note m" style="left:420px;top:20px;transform:rotate(5deg)">budget_v7.xlsx</div>
+        <div class="note p" style="left:820px;top:60px;transform:rotate(-4deg)">besluit.docx</div>
+        <div class="note x" style="left:180px;top:220px;transform:rotate(7deg)">planning.pptx</div>
+        <div class="note m" style="left:640px;top:300px;transform:rotate(-6deg)">acties_mail</div>
+        <div class="note s" style="left:960px;top:280px;transform:rotate(9deg)">stakeholders</div>
+        <div class="note x" style="left:380px;top:420px;transform:rotate(-3deg)">roadmap.xlsx</div>
+        <div class="note p" style="left:80px;top:440px;transform:rotate(6deg)">notulen.docx</div>
+      </div>
+      <div class="sub up d6" style="font-size:34px;color:#dbe6ff;font-weight:700;margin-top:26px">Regiedeck brengt het samen. Op&nbsp;één&nbsp;plek.</div>
+    </div>
+  </div>
+
+  <!-- SCENE 3 — dashboard -->
+  <div class="scene" id="s3" style="padding:70px">
+    <div class="screen up d1" id="screen">
+      <div class="topbar">
+        <div class="tb-title">Regie Dashboard</div>
+        <div class="tb-search">Zoek projecten, risico's, besluiten…</div>
+        <div class="tb-role">Actieve rol: IV Manager</div>
+        <div class="tb-av">IV</div>
+      </div>
+      <div class="board">
+        <div class="side">
+          <div class="lg"><div class="m">IV</div><div><b>Regiedeck</b><br><span>Gemeente Voorbeeld</span></div></div>
+          <div class="cap">REGIE</div>
+          <div class="it on"><i></i>Dashboard</div>
+          <div class="it"><i></i>Portfolio</div>
+          <div class="it"><i></i>Programma's</div>
+          <div class="it"><i></i>Projecten</div>
+          <div class="cap">STURING</div>
+          <div class="it"><i></i>Risico's</div>
+          <div class="it"><i></i>Acties</div>
+          <div class="it"><i></i>Besluiten</div>
+          <div class="it"><i></i>Rapportages</div>
+        </div>
+        <div class="main">
+          <div class="h1">Portfolio Dashboard</div>
+          <div class="h1s">Overzicht van de volledige IV-portfolio · live bijgewerkt</div>
+          <div class="kpis">
+            <div class="kpi"><div class="lb"><span class="dot" style="background:#1d4ed8"></span>Projecten</div><div class="n" data-c="12">0</div><div class="f">7 op schema · 5 met risico</div></div>
+            <div class="kpi"><div class="lb"><span class="dot" style="background:#22c55e"></span>Op schema</div><div class="n" data-c="7">0</div><div class="f">58% van portfolio</div></div>
+            <div class="kpi"><div class="lb"><span class="dot" style="background:#f59e0b"></span>Met risico</div><div class="n" data-c="5">0</div><div class="f">Oranje en rode projecten</div></div>
+            <div class="kpi"><div class="lb"><span class="dot" style="background:#ef4444"></span>Open risico's</div><div class="n" data-c="18">0</div><div class="f">Actief te mitigeren</div></div>
+          </div>
+          <div class="panels">
+            <div class="card">
+              <h3>Projecten in portfolio</h3>
+              <div class="row"><span class="code">PRJ-2026-001</span><span class="nm">Nieuw Zaaksysteem</span><span class="bar"><i style="background:#f59e0b" data-w="45%"></i></span><span class="tag a">Oranje</span></div>
+              <div class="row"><span class="code">PRJ-2026-002</span><span class="nm">Migratie naar Cloud</span><span class="bar"><i style="background:#22c55e" data-w="60%"></i></span><span class="tag g">Groen</span></div>
+              <div class="row"><span class="code">PRJ-2026-003</span><span class="nm">Informatieveiligheid &amp; Privacy</span><span class="bar"><i style="background:#ef4444" data-w="20%"></i></span><span class="tag r">Rood</span></div>
+              <div class="row"><span class="code">PRJ-2026-004</span><span class="nm">Datagedreven Sturing</span><span class="bar"><i style="background:#22c55e" data-w="72%"></i></span><span class="tag g">Groen</span></div>
+            </div>
+            <div class="card">
+              <h3>Projecten per status</h3>
+              <div class="stat">Planning <span class="sb"><i style="background:#6366f1" data-w="30%"></i></span><b>2</b></div>
+              <div class="stat">In uitvoering <span class="sb"><i style="background:#22c55e" data-w="85%"></i></span><b>7</b></div>
+              <div class="stat">On hold <span class="sb"><i style="background:#f59e0b" data-w="18%"></i></span><b>1</b></div>
+              <div class="stat">Afgerond <span class="sb"><i style="background:#94a3b8" data-w="25%"></i></span><b>2</b></div>
+              <h3 style="margin-top:16px">RAG-overzicht</h3>
+              <div class="rag"><i style="background:#22c55e;width:0" data-w="55%"></i><i style="background:#f59e0b;width:0" data-w="27%"></i><i style="background:#ef4444;width:0" data-w="18%"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 4 — features -->
+  <div class="scene" id="s4">
+    <div style="text-align:center">
+      <div class="kicker up d1" style="margin-bottom:14px">Elk project · een compleet dossier</div>
+      <div class="big up d1" style="font-size:56px;margin-bottom:44px">Alles wat regie vraagt, <span class="g">in samenhang.</span></div>
+      <div class="fgrid">
+        <div class="feat up d2"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l9 5v8l-9 5-9-5V8z"/><path d="M12 12v9"/><path d="M3.5 8L12 12l8.5-4"/></svg></div><b>Risico's & acties</b><p>Scoren op kans × impact, mitigeren, toewijzen en deadlines bewaken.</p></div>
+        <div class="feat up d3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><b>Besluiten & baten</b><p>Vastleggen wie wat besloot — en verwachte opbrengsten meten.</p></div>
+        <div class="feat up d4"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="14" rx="1"/></svg></div><b>Kanban-bord</b><p>Sleepbaar bord dat bestaande taken, issues en risico's als kaart koppelt.</p></div>
+        <div class="feat up d5"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 15l5-5 4 4 7-7"/></svg></div><b>Roadmap & heatmap</b><p>Mijlpalen, tijdlijnen en portfoliodruk in één oogopslag.</p></div>
+        <div class="feat up d4"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2v20M6 6h9a3 3 0 010 6H6M6 12h11"/></svg></div><b>Budgetten & kosten</b><p>Begroting, realisatie en afwijkingen strak bijgehouden.</p></div>
+        <div class="feat up d5"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg></div><b>Stakeholders</b><p>Belanghebbenden, hun belang en communicatiemomenten in kaart.</p></div>
+        <div class="feat up d6"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div><b>Brainstorm</b><p>Ideeën clusteren, stemmen en promoveren tot volwaardige projecten.</p></div>
+        <div class="feat up d7"><div class="ic"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v5h5M9 13h6M9 17h6"/></svg></div><b>Rapportages</b><p>Portfolio-, bestuurs- en per-project-rapport als PDF en CSV.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 5 — security -->
+  <div class="scene" id="s5">
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="shield up d1"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+      <div class="big up d1" style="font-size:60px">Veilig, <span class="g">tot in de kern.</span></div>
+      <div class="sub up d2">Beveiliging is geen bijzaak — het is het fundament.</div>
+      <div class="secgrid">
+        <div class="sec up d3"><div class="k"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></div><div><b>Argon2id</b><br><span>Hashing + lockout per gebruiker</span></div></div>
+        <div class="sec up d4"><div class="k"><svg viewBox="0 0 24 24"><path d="M15 7a4 4 0 100 8M3 11h8M7 8l-4 3 4 3"/></svg></div><div><b>Passkeys & 2FA</b><br><span>WebAuthn, TOTP, herstelcodes</span></div></div>
+        <div class="sec up d5"><div class="k"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 000 18 15 15 0 000-18"/></svg></div><div><b>SSO — Entra ID</b><br><span>Single Sign-On voor de organisatie</span></div></div>
+        <div class="sec up d4"><div class="k"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 9h16"/></svg></div><div><b>CSRF & CSP</b><br><span>Per-sessie token, strikte policy</span></div></div>
+        <div class="sec up d5"><div class="k"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg></div><div><b>Prepared statements</b><br><span>Geen SQL-injectie, altijd PDO</span></div></div>
+        <div class="sec up d6"><div class="k"><svg viewBox="0 0 24 24"><path d="M3 12l4 4L21 4M3 20h18"/></svg></div><div><b>Auditlog</b><br><span>Elke actie vastgelegd & doorzoekbaar</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 6 — roles -->
+  <div class="scene" id="s6">
+    <div style="text-align:center">
+      <div class="big up d1" style="font-size:58px;margin-bottom:14px">Iedereen ziet <span class="g">het juiste.</span></div>
+      <div class="sub up d1" style="margin-bottom:44px">Vijf rollen · fijnmazige rechten tot op projectonderdeel-niveau</div>
+      <div class="roles">
+        <div class="role up d2"><div class="rn" style="background:linear-gradient(150deg,#6366f1,#8b5cf6)">MT</div><b>MT</b><p>Ziet alles, muteert niets — read-only overzicht.</p></div>
+        <div class="role up d3"><div class="rn" style="background:linear-gradient(150deg,#2563eb,#0ea5e9)">IV</div><b>IV Manager</b><p>Volledige regie over de hele portfolio.</p></div>
+        <div class="role up d4"><div class="rn" style="background:linear-gradient(150deg,#0ea5e9,#22c55e)">PE</div><b>Projecteigenaar</b><p>Beheert de eigen projecten en team.</p></div>
+        <div class="role up d5"><div class="rn" style="background:linear-gradient(150deg,#22c55e,#84cc16)">PL</div><b>Projectlid</b><p>Ziet alleen toegewezen projecten en onderdelen.</p></div>
+        <div class="role up d6"><div class="rn" style="background:linear-gradient(150deg,#f59e0b,#ef4444)">BH</div><b>Beheerder</b><p>Functioneel beheer — géén projectinhoud.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 7 — outro -->
+  <div class="scene" id="s7">
+    <div style="text-align:center">
+      <div class="logo up d1" style="justify-content:center">
+        <div class="mark">IV</div>
+        <div class="brand">Regiedeck</div>
+      </div>
+      <div class="big up d2" style="font-size:52px;margin-top:44px;max-width:1300px">Alles wat je nodig hebt om <span class="g">regie te voeren.</span><br>Op één plek.</div>
+      <div class="pillrow up d4" style="margin-top:40px">
+        <div class="pill" style="background:linear-gradient(150deg,#3b82f6,#0ea5e9);border:0;color:#fff;font-size:22px;padding:16px 32px">Veilig · Uitbreidbaar · Gemaakt om tien jaar mee te gaan</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vig"></div>
+  <div class="credit" id="credit">PHP 8 · MySQL/MariaDB · Zonder zwaar framework · Multi-tenant klaar</div>
+  <div class="prog" id="prog"></div>
+</div>
+
+<script>
+  const scenes=[
+    {id:'s1',in:300,out:5200},
+    {id:'s2',in:5600,out:10600},
+    {id:'s3',in:11000,out:17600},
+    {id:'s4',in:18000,out:24200},
+    {id:'s5',in:24600,out:30200},
+    {id:'s6',in:30600,out:35200},
+    {id:'s7',in:35600,out:41000},
+  ];
+  const TOTAL=41500;
+  const $=id=>document.getElementById(id);
+
+  function show(id){$(id).classList.add('show')}
+  function hide(id){$(id).classList.remove('show')}
+
+  // schedule scenes
+  scenes.forEach(s=>{
+    setTimeout(()=>show(s.id),s.in);
+    setTimeout(()=>hide(s.id),s.out);
+  });
+
+  // progress bar
+  const start=performance.now();
+  (function tick(){
+    const p=Math.min(1,(performance.now()-start)/TOTAL);
+    $('prog').style.width=(p*100)+'%';
+    if(p<1) requestAnimationFrame(tick);
+  })();
+
+  // scene 2 chaos -> converge
+  setTimeout(()=>$('chaos').classList.add('converge'),8600);
+
+  // scene 3 counters + bars
+  function animateDash(){
+    document.querySelectorAll('#s3 .n').forEach(el=>{
+      const to=+el.dataset.c, t0=performance.now(), dur=1200;
+      (function run(){const k=Math.min(1,(performance.now()-t0)/dur);
+        el.textContent=Math.round(to*(1-Math.pow(1-k,3)));
+        if(k<1)requestAnimationFrame(run);})();
+    });
+    document.querySelectorAll('#s3 [data-w]').forEach(i=>{i.style.width=i.dataset.w});
+  }
+  setTimeout(animateDash,11500);
+
+  // credit line during dashboard + outro
+  setTimeout(()=>$('credit').classList.add('show'),11200);
+  setTimeout(()=>$('credit').classList.remove('show'),17600);
+  setTimeout(()=>$('credit').classList.add('show'),35800);
+
+  window.__promoDone=false;
+  setTimeout(()=>{window.__promoDone=true},TOTAL);
+</script>

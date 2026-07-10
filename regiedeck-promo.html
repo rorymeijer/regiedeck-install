@@ -1,0 +1,32 @@
+import { chromium } from 'playwright';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const html = 'file://' + path.join(__dirname, 'regiedeck-promo.html');
+const outDir = path.join(__dirname, 'video');
+
+const W = 1920, H = 1080;
+
+const browser = await chromium.launch({
+  args: ['--force-device-scale-factor=1', '--disable-gpu-vsync', '--hide-scrollbars']
+});
+const context = await browser.newContext({
+  viewport: { width: W, height: H },
+  deviceScaleFactor: 1,
+  recordVideo: { dir: outDir, size: { width: W, height: H } },
+});
+const page = await context.newPage();
+await page.goto(html);
+console.log('loaded, recording…');
+
+// wait until the promo timeline finishes
+await page.waitForFunction('window.__promoDone === true', null, { timeout: 60000 });
+await page.waitForTimeout(400);
+
+const video = page.video();
+await context.close();       // finalizes the webm
+await browser.close();
+
+const raw = await video.path();
+console.log('RAW_VIDEO=' + raw);
