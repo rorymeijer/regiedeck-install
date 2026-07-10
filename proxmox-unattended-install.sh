@@ -43,7 +43,7 @@ rm -f /etc/apt/sources.list.d/ceph.list
 
 apt update
 
-apt install -y apache2 git unzip curl sudo \\
+apt install -y apache2 git unzip curl sudo cron \\
 php php-cli php-mysql php-mbstring php-curl php-xml libapache2-mod-php
 
 a2enmod rewrite
@@ -106,6 +106,16 @@ echo "Regiedeck is bijgewerkt."
 EOF
 
 chmod +x /usr/local/bin/update-regiedeck
+
+systemctl enable --now cron
+
+cat > /etc/cron.d/regiedeck <<'CRON'
+# Regiedeck achtergrondtaken (als www-data).
+PATH=/usr/bin:/bin
+* * * * * www-data php /var/www/regiedeck/scripts/process-outbox.php >> /var/www/regiedeck/storage/logs/outbox.log 2>&1
+0 7 * * 1 www-data php /var/www/regiedeck/scripts/send-weekly-digest.php >> /var/www/regiedeck/storage/logs/digest.log 2>&1
+CRON
+chmod 0644 /etc/cron.d/regiedeck
 
 cat > /root/regiedeck-db-info.txt <<EOF
 MySQL host: $MYSQL_HOST

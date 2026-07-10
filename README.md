@@ -77,6 +77,7 @@ Het script:
 * configureert Apache;
 * stelt de juiste bestandsrechten in;
 * start Apache;
+* stelt cron in voor de achtergrondtaken (e-mailnotificaties en wekelijkse digest);
 * maakt Regiedeck gereed voor de webinstaller.
 
 ---
@@ -91,7 +92,21 @@ Het script:
 * maakt een Docker Compose-configuratie aan;
 * start de container;
 * koppelt configuratie- en opslagmappen als volumes;
+* stelt cron op de host in voor de achtergrondtaken (e-mailnotificaties en wekelijkse digest);
 * maakt Regiedeck gereed voor de webinstaller.
+
+---
+
+# Achtergrondtaken
+
+Beide installers stellen automatisch cron in voor de twee Regiedeck-achtergrondtaken:
+
+* **process-outbox** – verstuurt e-mailnotificaties (elke minuut);
+* **send-weekly-digest** – wekelijkse digest-mail (maandag 07:00).
+
+Op **Proxmox** draait cron in de container als `www-data`; op **Docker** draait cron op de host en voert de taken via `docker exec` in de container uit. De cron-configuratie staat in `/etc/cron.d/regiedeck`.
+
+> **Let op:** e-mail moet in de app aan staan (Beheer → Instellingen), anders doen de taken niets.
 
 ---
 
