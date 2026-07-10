@@ -104,10 +104,6 @@ echo
 echo "    Hier vul je de MySQL-gegevens (host, database,"
 echo "    gebruiker, wachtwoord) in en rond je de installatie af."
 echo
-echo " 2. Verwijder daarna de installer om alles veilig te maken:"
-echo
-echo "      docker exec regiedeck rm -rf /var/www/html/public/install"
-echo
 echo " Achtergrondtaken draaien automatisch via cron op de host"
 echo " (/etc/cron.d/regiedeck)."
 echo "=========================================================="
