@@ -87,10 +87,23 @@ chmod -R 775 storage config
 
 docker compose up -d --build
 
+# --- Achtergrondtaken: cron op de host, uitgevoerd in de container --------
+apt install -y cron
+systemctl enable --now cron
+
+cat > /etc/cron.d/regiedeck <<'CRON'
+# Regiedeck achtergrondtaken. Draaien in de regiedeck-container als www-data.
+PATH=/usr/local/bin:/usr/bin:/bin
+* * * * * root docker exec -u www-data regiedeck php /var/www/html/scripts/process-outbox.php >> /var/log/regiedeck-outbox.log 2>&1
+0 7 * * 1 root docker exec -u www-data regiedeck php /var/www/html/scripts/send-weekly-digest.php >> /var/log/regiedeck-digest.log 2>&1
+CRON
+chmod 0644 /etc/cron.d/regiedeck
+
 unset GITHUB_TOKEN
 
 echo
 echo "Regiedeck Docker container draait."
+echo "Achtergrondtaken draaien via cron op de host (/etc/cron.d/regiedeck)."
 echo "Open:"
 echo "http://<server-ip>:${PORT}/install/"
 echo
