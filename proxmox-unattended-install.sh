@@ -58,7 +58,9 @@ git clone -b "$BRANCH" "https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$REPO.git"
 mkdir -p /var/www/regiedeck/storage/logs /var/www/regiedeck/config
 
 # Rechten voor installer, storage én in-app updater
-chown -R www-data:www-data /var/www/regiedeck/storage /var/www/regiedeck/config /var/www/regiedeck/.git
+# Hele map eigendom van www-data zodat de installer en in-app updater
+# overal kunnen schrijven (git-operaties, updates, config).
+chown -R www-data:www-data /var/www/regiedeck
 chmod -R 775 /var/www/regiedeck/storage /var/www/regiedeck/config
 
 # Git safe-directory voor root én www-data
