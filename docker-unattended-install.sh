@@ -12,17 +12,8 @@ read -r -p "GitHub username: " GITHUB_USER
 read -r -s -p "GitHub token: " GITHUB_TOKEN
 echo
 
-read -r -p "Externe MySQL host [192.168.2.146]: " MYSQL_HOST
-MYSQL_HOST="${MYSQL_HOST:-192.168.2.146}"
-
-read -r -p "MySQL database [regiedeck]: " MYSQL_DATABASE
-MYSQL_DATABASE="${MYSQL_DATABASE:-regiedeck}"
-
-read -r -p "MySQL user [regiedeck]: " MYSQL_USER
-MYSQL_USER="${MYSQL_USER:-regiedeck}"
-
-read -r -s -p "MySQL password: " MYSQL_PASSWORD
-echo
+# MySQL-gegevens worden tijdens de installatie in de PHP-installer
+# (http://<server-ip>:PORT/install/) ingevoerd, dus hier niet meer vragen.
 
 apt update
 apt install -y git curl ca-certificates
@@ -68,11 +59,6 @@ services:
     restart: unless-stopped
     ports:
       - "${PORT}:80"
-    environment:
-      MYSQL_HOST: "${MYSQL_HOST}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
       - ./storage:/var/www/html/storage
       - ./config:/var/www/html/config
@@ -101,11 +87,27 @@ chmod 0644 /etc/cron.d/regiedeck
 
 unset GITHUB_TOKEN
 
+SERVER_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+SERVER_IP="${SERVER_IP:-<server-ip>}"
+
 echo
-echo "Regiedeck Docker container draait."
-echo "Achtergrondtaken draaien via cron op de host (/etc/cron.d/regiedeck)."
-echo "Open:"
-echo "http://<server-ip>:${PORT}/install/"
+echo "=========================================================="
+echo " Regiedeck Docker-container draait!"
+echo "=========================================================="
 echo
-echo "Na installatie verwijderen:"
-echo "docker exec regiedeck rm -rf /var/www/html/public/install"
+echo " Wat moet je nu doen?"
+echo
+echo " 1. Open in je browser de installer:"
+echo
+echo "      http://${SERVER_IP}:${PORT}/install/"
+echo
+echo "    Hier vul je de MySQL-gegevens (host, database,"
+echo "    gebruiker, wachtwoord) in en rond je de installatie af."
+echo
+echo " 2. Verwijder daarna de installer om alles veilig te maken:"
+echo
+echo "      docker exec regiedeck rm -rf /var/www/html/public/install"
+echo
+echo " Achtergrondtaken draaien automatisch via cron op de host"
+echo " (/etc/cron.d/regiedeck)."
+echo "=========================================================="
