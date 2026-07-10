@@ -17,17 +17,8 @@ read -r -p "GitHub username: " GITHUB_USER
 read -r -s -p "GitHub token: " GITHUB_TOKEN
 echo
 
-read -r -p "Externe MySQL host [192.168.2.146]: " MYSQL_HOST
-MYSQL_HOST="${MYSQL_HOST:-192.168.2.146}"
-
-read -r -p "MySQL database [regiedeck]: " MYSQL_DATABASE
-MYSQL_DATABASE="${MYSQL_DATABASE:-regiedeck}"
-
-read -r -p "MySQL user [regiedeck]: " MYSQL_USER
-MYSQL_USER="${MYSQL_USER:-regiedeck}"
-
-read -r -s -p "MySQL password: " MYSQL_PASSWORD
-echo
+# MySQL-gegevens worden tijdens de installatie in de PHP-installer
+# (http://<container-ip>/install/) ingevoerd, dus hier niet meer vragen.
 
 POST_INSTALL_HOST="/root/regiedeck-post-install.sh"
 POST_INSTALL_CT="/root/regiedeck-post-install.sh"
@@ -118,12 +109,7 @@ CRON
 chmod 0644 /etc/cron.d/regiedeck
 
 cat > /root/regiedeck-db-info.txt <<EOF
-MySQL host: $MYSQL_HOST
-Database: $MYSQL_DATABASE
-User: $MYSQL_USER
-Password: $MYSQL_PASSWORD
-
-Open:
+Open (hier voer je de MySQL-gegevens in):
 http://<container-ip>/install/
 
 Na installatie uitvoeren:
@@ -180,13 +166,28 @@ pct exec "$CTID" -- bash "$POST_INSTALL_CT"
 
 rm -f "$POST_INSTALL_HOST"
 
+CT_IP="$(pct exec "$CTID" -- hostname -I 2>/dev/null | awk '{print $1}')"
+CT_IP="${CT_IP:-<container-ip>}"
+
 echo
-echo "Regiedeck is geïnstalleerd in container $CTID."
-echo "IP-adres zoeken:"
-echo "pct exec $CTID -- hostname -I"
+echo "=========================================================="
+echo " Regiedeck is geïnstalleerd in container $CTID!"
+echo "=========================================================="
 echo
-echo "Open daarna:"
-echo "http://<container-ip>/install/"
+echo " Wat moet je nu doen?"
 echo
-echo "Handmatig updaten:"
-echo "pct exec $CTID -- update-regiedeck"
+echo " 1. Open in je browser de installer:"
+echo
+echo "      http://${CT_IP}/install/"
+echo
+echo "    Hier vul je de MySQL-gegevens (host, database,"
+echo "    gebruiker, wachtwoord) in en rond je de installatie af."
+echo
+echo " 2. Verwijder daarna de installer om alles veilig te maken:"
+echo
+echo "      pct exec $CTID -- rm -rf /var/www/regiedeck/public/install"
+echo
+echo " Handmatig updaten kan later met:"
+echo
+echo "      pct exec $CTID -- update-regiedeck"
+echo "=========================================================="
