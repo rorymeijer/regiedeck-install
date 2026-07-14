@@ -16,10 +16,43 @@ echo
 # (http://<server-ip>:PORT/install/) ingevoerd, dus hier niet meer vragen.
 
 apt update
-apt install -y git curl ca-certificates
+apt install -y git curl ca-certificates iproute2
 
 if ! command -v docker >/dev/null 2>&1; then
   curl -fsSL https://get.docker.com | sh
+fi
+
+# --- Vrije poort zoeken: begin bij $PORT, anders de volgende vrije poort ---
+# Als de gewenste poort (standaard 8181) al bezet is, schuiven we automatisch
+# op naar de eerstvolgende vrije poort.
+is_port_free() {
+  local p="$1"
+  # Bezet als er al iets op de host op deze poort luistert.
+  if ss -ltnH 2>/dev/null | awk '{print $4}' | grep -qE "[:.]${p}\$"; then
+    return 1
+  fi
+  # Bezet als een bestaande Docker-container deze poort al publiceert.
+  if command -v docker >/dev/null 2>&1 && \
+     docker ps --format '{{.Ports}}' 2>/dev/null | grep -qE "(^|[^0-9])${p}->"; then
+    return 1
+  fi
+  return 0
+}
+
+REQUESTED_PORT="$PORT"
+until is_port_free "$PORT"; do
+  echo "Poort ${PORT} is bezet, volgende poort proberen..."
+  PORT=$((PORT + 1))
+  if [[ "$PORT" -gt 65535 ]]; then
+    echo "Geen vrije poort gevonden vanaf ${REQUESTED_PORT}." >&2
+    exit 1
+  fi
+done
+
+if [[ "$PORT" != "$REQUESTED_PORT" ]]; then
+  echo "Poort ${REQUESTED_PORT} was bezet; Regiedeck gebruikt nu poort ${PORT}."
+else
+  echo "Poort ${PORT} is vrij en wordt gebruikt."
 fi
 
 mkdir -p "$APP_DIR"
